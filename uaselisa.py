@@ -1,32 +1,39 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
+from sqlalchemy import create_engine
 
-# Define the file path
-csv_file = "dump-dw_aw.csv"
+# Database connection string
+db_url = 'mysql+pymysql://username:password@localhost/dump-dw_aw'
+engine = create_engine(db_url)
 
-# Load data from CSV
+# SQL Query
+sql_query = """
+    SELECT 
+        pc.productcategorykey,
+        pc.englishproductcategoryname,
+        SUM(is.salesamount) AS total_sales
+    FROM 
+        dimproductcategory pc
+    INNER JOIN 
+        factinternetsales is ON pc.productcategorykey = is.productcategorykey
+    GROUP BY 
+        pc.productcategorykey, pc.englishproductcategoryname
+    ORDER BY 
+        total_sales DESC
+"""
+
+# Execute SQL query and fetch data into DataFrame
 try:
-    # Attempt to load the CSV file
-    df = pd.read_csv(csv_file)
-
-    # Ensure that the expected columns are present
-    expected_columns = ['englishproductcategoryname', 'salesamount']
-
-    # Check if all expected columns are in the DataFrame
-    if not all(col in df.columns for col in expected_columns):
-        raise ValueError(f"Not all expected columns ({expected_columns}) are present in the CSV file.")
-
-    # Calculate total sales per product category
-    sales_per_category = df.groupby("englishproductcategoryname")["salesamount"].sum().reset_index()
-
+    df = pd.read_sql_query(sql_query, engine)
+    
     # Create a bar chart
     fig, ax = plt.subplots(figsize=(10, 6))
-    sales_per_category.plot(x="englishproductcategoryname", y="salesamount", kind="bar", ax=ax, color="skyblue")
+    df.plot(x="englishproductcategoryname", y="total_sales", kind="bar", ax=ax, color="skyblue")
     ax.set_xlabel("Kategori Produk")
     ax.set_ylabel("Pendapatan Penjualan")
     ax.set_title("Pendapatan Penjualan per Kategori Produk")
-    ax.set_xticklabels(sales_per_category["englishproductcategoryname"], rotation=45, ha="right")
+    ax.set_xticklabels(df["englishproductcategoryname"], rotation=45, ha="right")
 
     # Streamlit App
     st.title("Pendapatan Penjualan per Kategori Produk")
@@ -34,15 +41,5 @@ try:
     # Display the chart in Streamlit
     st.pyplot(fig)
 
-except FileNotFoundError:
-    st.error(f"File '{csv_file}' not found. Please make sure the file exists and the path is correct.")
-except ValueError as ve:
-    st.error(f"Error in CSV file: {ve}")
 except Exception as e:
-    st.error(f"An error occurred: {e}")
-
-# Additional Streamlit Features (Optional)
-# You can add more features to your Streamlit app, such as:
-# - Filters to select specific product categories
-# - Interactive charts that allow users to hover over data points
-# - Text explanations or descriptions of the data
+    st.error(f"Error fetching data from database: {e}")
