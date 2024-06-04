@@ -21,11 +21,8 @@ def get_mysql_connection():
 # Function to fetch data from MySQL
 def fetch_data(conn):
     query = """
-        SELECT pc.productcategorykey, pc.englishproductcategoryname, SUM(fs.salesamount) AS total_sales 
-        FROM dimproductcategory pc 
-        INNER JOIN factinternetsales fs ON pc.productcategorykey = fs.productcategorykey 
-        GROUP BY pc.productcategorykey, pc.englishproductcategoryname 
-        ORDER BY total_sales DESC
+       SELECT pc.productkey, pc.englishproductname, SUM(fs.salesamount) AS total_sales FROM dimproduct pc 
+       INNER JOIN factinternetsales fs ON pc.productkey = fs.productkey GROUP BY pc.productkey, pc.englishproductname ORDER BY total_sales DESC
     """
     try:
         with conn.cursor() as cursor:
@@ -55,14 +52,14 @@ def main():
             if not df.empty:
                 # Create bar chart
                 fig, ax = plt.subplots(figsize=(10, 6))
-                df.plot(x="englishproductcategoryname", y="total_sales", kind="bar", ax=ax, color="skyblue")
-                ax.set_xlabel("Product Category")
+                df.plot(x="englishproductname", y="total_sales", kind="bar", ax=ax, color="skyblue")
+                ax.set_xlabel("Product")
                 ax.set_ylabel("Sales Revenue")
-                ax.set_title("Sales Revenue per Product Category")
-                ax.set_xticklabels(df["englishproductcategoryname"], rotation=45, ha="right")
+                ax.set_title("Sales Revenue per Product")
+                ax.set_xticklabels(df["englishproductname"], rotation=45, ha="right")
                 
                 # Display chart in Streamlit
-                st.title("Sales Revenue per Product Category")
+                st.title("Sales Revenue per Product")
                 st.pyplot(fig)
             else:
                 st.warning("No data available.")
