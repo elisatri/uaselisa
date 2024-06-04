@@ -4,7 +4,7 @@ import streamlit as st
 from sqlalchemy import create_engine
 
 # Database connection string
-db_url = 'mysql+pymysql://username:password@localhost/dump-dw_aw'
+db_url = 'mysql+pymysql://root:""@localhost/dump-dw_aw'
 engine = create_engine(db_url)
 
 # SQL Query
