@@ -10,6 +10,13 @@ try:
     # Attempt to load the CSV file
     df = pd.read_csv(csv_file)
 
+    # Ensure that the expected columns are present
+    expected_columns = ['englishproductcategoryname', 'salesamount']
+
+    # Check if all expected columns are in the DataFrame
+    if not all(col in df.columns for col in expected_columns):
+        raise ValueError(f"Not all expected columns ({expected_columns}) are present in the CSV file.")
+
     # Calculate total sales per product category
     sales_per_category = df.groupby("englishproductcategoryname")["salesamount"].sum().reset_index()
 
@@ -29,8 +36,8 @@ try:
 
 except FileNotFoundError:
     st.error(f"File '{csv_file}' not found. Please make sure the file exists and the path is correct.")
-except pd.errors.ParserError as pe:
-    st.error(f"Error parsing CSV file: {pe}")
+except ValueError as ve:
+    st.error(f"Error in CSV file: {ve}")
 except Exception as e:
     st.error(f"An error occurred: {e}")
 
