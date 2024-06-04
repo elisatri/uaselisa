@@ -5,7 +5,7 @@ import sqlite3
 import requests
 
 # URL raw file SQL di GitHub
-github_url = 'https://github.com/elisatri/uaselisa/blob/main/dump-dw_aw-202403050806.sql'
+github_url = 'https://raw.githubusercontent.com/elisatri/uaselisa/main/dump-dw_aw-202403050806.sql'
 
 # Fungsi untuk mendapatkan isi file SQL dari GitHub
 def fetch_sql_from_github(url):
