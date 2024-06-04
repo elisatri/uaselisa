@@ -1,7 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
-import sqlite3
+from sqlalchemy import create_engine
+import pymysql
 import requests
 
 # URL raw file SQL di GitHub
@@ -15,19 +16,33 @@ def fetch_sql_from_github(url):
     else:
         raise ValueError(f"Failed to fetch SQL file from GitHub. Status code: {response.status_code}")
 
-# Mendapatkan isi file SQL dari GitHub
+# Fungsi untuk menjalankan skrip SQL pada database MySQL
+def execute_sql_on_mysql(engine, sql_script):
+    with engine.connect() as conn:
+        sql_statements = sql_script.split(';')
+        for statement in sql_statements:
+            if statement.strip():
+                conn.execute(statement)
+
+# Konfigurasi koneksi database MySQL
+db_user = 'root'
+db_password = ''
+db_host = 'localhost'
+db_port = '3306'
+db_name = 'dump-dw_aw'
+
+# URL koneksi SQLAlchemy untuk MySQL
+database_url = f'mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
+
 try:
+    # Buat engine SQLAlchemy untuk koneksi MySQL
+    engine = create_engine(database_url)
+    
+    # Mendapatkan isi file SQL dari GitHub
     sql_data = fetch_sql_from_github(github_url)
     
-    # Membuat koneksi ke database SQLite dalam memori
-    conn = sqlite3.connect(":memory:")
-    cursor = conn.cursor()
-    
-    # Eksekusi skrip SQL untuk membuat dan memasukkan data ke dalam database SQLite
-    sql_statements = sql_data.split(';')
-    for statement in sql_statements:
-        if statement.strip():
-            cursor.execute(statement)
+    # Jalankan skrip SQL pada database MySQL
+    execute_sql_on_mysql(engine, sql_data)
     
     # Query SQL untuk mendapatkan data yang diperlukan
     sql_query = """
@@ -46,7 +61,7 @@ try:
     """
     
     # Eksekusi query SQL dan ambil hasilnya ke dalam DataFrame
-    df = pd.read_sql_query(sql_query, conn)
+    df = pd.read_sql_query(sql_query, engine)
     
     # Buat grafik batang
     fig, ax = plt.subplots(figsize=(10, 6))
