@@ -1,8 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
-from sqlalchemy import create_engine
-import pymysql
+import sqlite3
 import requests
 
 # URL raw file SQL di GitHub
@@ -16,33 +15,22 @@ def fetch_sql_from_github(url):
     else:
         raise ValueError(f"Failed to fetch SQL file from GitHub. Status code: {response.status_code}")
 
-# Fungsi untuk menjalankan skrip SQL pada database MySQL
-def execute_sql_on_mysql(engine, sql_script):
-    with engine.connect() as conn:
-        sql_statements = sql_script.split(';')
-        for statement in sql_statements:
-            if statement.strip():
-                conn.execute(statement)
-
-# Konfigurasi koneksi database MySQL
-db_user = 'root'
-db_password = ''
-db_host = 'localhost'
-db_port = '3306'
-db_name = 'dump-dw_aw'
-
-# URL koneksi SQLAlchemy untuk MySQL
-database_url = f'mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
-
+# Mendapatkan isi file SQL dari GitHub
 try:
-    # Buat engine SQLAlchemy untuk koneksi MySQL
-    engine = create_engine(database_url)
-    
-    # Mendapatkan isi file SQL dari GitHub
     sql_data = fetch_sql_from_github(github_url)
     
-    # Jalankan skrip SQL pada database MySQL
-    execute_sql_on_mysql(engine, sql_data)
+    # Membuat koneksi ke database SQLite dalam memori
+    conn = sqlite3.connect(":memory:")
+    cursor = conn.cursor()
+    
+    # Eksekusi skrip SQL untuk membuat dan memasukkan data ke dalam database SQLite
+    sql_statements = sql_data.split(';')
+    for statement in sql_statements:
+        if statement.strip():
+            try:
+                cursor.execute(statement)
+            except sqlite3.OperationalError as e:
+                print(f"Error executing statement: {statement}\n{e}")
     
     # Query SQL untuk mendapatkan data yang diperlukan
     sql_query = """
@@ -61,7 +49,7 @@ try:
     """
     
     # Eksekusi query SQL dan ambil hasilnya ke dalam DataFrame
-    df = pd.read_sql_query(sql_query, engine)
+    df = pd.read_sql_query(sql_query, conn)
     
     # Buat grafik batang
     fig, ax = plt.subplots(figsize=(10, 6))
