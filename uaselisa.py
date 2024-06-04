@@ -3,15 +3,22 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import mysql.connector
 
-# Fungsi untuk mendapatkan koneksi ke MySQL
+# Function to get a connection to MySQL
 def get_mysql_connection():
-    conn = mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='',
-        database='dump-dw_aw'
-    )
-    return conn
+    print("Trying to connect to MySQL...")
+    try:
+        conn = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='',
+            database='dump-dw_aw'
+        )
+        print("Connected to MySQL database!")
+        return conn
+    except mysql.connector.Error as e:
+        print(f"Error connecting to MySQL: {e}")
+        return None
+
 
 # Query untuk mendapatkan data
 def fetch_data(conn):
