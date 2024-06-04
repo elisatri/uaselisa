@@ -10,7 +10,7 @@ def get_mysql_connection():
             host="localhost",
             user="root",
             password="",
-            database="dump-dw_aw"
+            database="adventureworks_dw"
         )
         return conn
     except mysql.connector.Error as e:
