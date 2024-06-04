@@ -34,7 +34,8 @@ try:
     
     # Query SQL untuk mendapatkan data yang diperlukan
     sql_query = """
-        SELECT pc.productkey, pc.englishproductname, SUM(fs.salesamount) AS total_sales FROM dimproduct pc INNER JOIN factinternetsales fs ON pc.productkey = fs.productkey GROUP BY pc.productkey, pc.englishproductname ORDER BY total_sales DESC;
+        SELECT pc.productkey, pc.englishproductname, SUM(fs.salesamount) AS total_sales FROM dimproduct pc 
+        INNER JOIN factinternetsales fs ON pc.productkey = fs.productkey GROUP BY pc.productkey, pc.englishproductname ORDER BY total_sales DESC
     """
     
     # Eksekusi query SQL dan ambil hasilnya ke dalam DataFrame
