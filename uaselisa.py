@@ -1,13 +1,18 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
-from sqlalchemy import create_engine
+import pymysql
 
 # Function to establish MySQL connection
 def get_mysql_connection():
     try:
-        engine = create_engine("mysql+mysqlconnector://root:@localhost/dump-dw_aw")
-        conn = engine.connect()
+        conn = pymysql.connect(
+            host="localhost",
+            user="root",
+            password="",
+            database="dump-dw_aw",
+            cursorclass=pymysql.cursors.DictCursor
+        )
         return conn
     except Exception as e:
         print(f"Error connecting to MySQL: {e}")
@@ -23,8 +28,11 @@ def fetch_data(conn):
         ORDER BY total_sales DESC
     """
     try:
-        df = pd.read_sql(query, conn)
-        return df
+        with conn.cursor() as cursor:
+            cursor.execute(query)
+            data = cursor.fetchall()
+            df = pd.DataFrame(data)
+            return df
     except Exception as e:
         print(f"Error fetching data from MySQL: {e}")
         return pd.DataFrame()
