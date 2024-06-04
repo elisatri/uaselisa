@@ -1,26 +1,13 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
-from sqlalchemy import create_engine
 
-# Read SQL data from file
-with open("dump-dw_aw-202403050806.sql", "r") as f:
-    sql_data = f.read()
-
-# Create an in-memory SQLite engine using SQLAlchemy
-engine = create_engine("sqlite:///:memory:")
-
-# Execute SQL queries and load data into DataFrames
-with engine.connect() as conn:
-    conn.execute(sql_data)
-    product_categories_df = pd.read_sql("SELECT * FROM dimproductcategory", conn)
-    internet_sales_df = pd.read_sql("SELECT * FROM factinternetsales", conn)
-
-# Merge dataframes
-merged_df = pd.merge(product_categories_df, internet_sales_df, on="productcategorykey")
+# Load data from CSV
+csv_file = "dump-dw_aw.csv"
+df = pd.read_csv(csv_file)
 
 # Calculate total sales per product category
-sales_per_category = merged_df.groupby("englishproductcategoryname")["salesamount"].sum().reset_index()
+sales_per_category = df.groupby("englishproductcategoryname")["salesamount"].sum().reset_index()
 
 # Create a bar chart
 fig, ax = plt.subplots(figsize=(10, 6))
