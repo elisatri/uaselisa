@@ -7,10 +7,10 @@ import mysql.connector
 def get_mysql_connection():
     try:
         conn = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='',
-            database='dump-dw_aw'
+            host="localhost",
+            user="root",
+            password="",
+            database="dump-dw_aw"
         )
         return conn
     except mysql.connector.Error as e:
