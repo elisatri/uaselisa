@@ -7,6 +7,7 @@ csv_file = "dump-dw_aw.csv"
 
 # Load data from CSV
 try:
+    # Attempt to load the CSV file
     df = pd.read_csv(csv_file)
 
     # Calculate total sales per product category
@@ -28,6 +29,8 @@ try:
 
 except FileNotFoundError:
     st.error(f"File '{csv_file}' not found. Please make sure the file exists and the path is correct.")
+except pd.errors.ParserError as pe:
+    st.error(f"Error parsing CSV file: {pe}")
 except Exception as e:
     st.error(f"An error occurred: {e}")
 
