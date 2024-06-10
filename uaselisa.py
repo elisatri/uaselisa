@@ -7,9 +7,11 @@ def get_mysql_connection():
         conn = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="",
+            password="", 
             database="dump-dw_aw"
         )
+        if conn.is_connected():
+            st.write("Connection to MySQL database successful")
         return conn
     except mysql.connector.Error as e:
         st.error(f"Error connecting to MySQL: {e}")
