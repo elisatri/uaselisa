@@ -6,7 +6,7 @@ import pandas as pd
 @st.cache(allow_output_mutation=True)
 def connect_db():
     conn = pymysql.connect(
-        host='localhost',  # Ganti dengan host Anda
+        host='127.0.0.1',  # Ganti dengan host Anda
         port=3306,          # Port default MySQL
         user='root',        # Ganti dengan username Anda
         passwd='',          # Ganti dengan password Anda
