@@ -1,5 +1,5 @@
-import pandas as pd
 import streamlit as st
+import pandas as pd
 import matplotlib.pyplot as plt
 from sqlalchemy import create_engine
 
@@ -9,10 +9,10 @@ def get_mysql_connection():
         # Adjust the connection string as needed
         engine = create_engine('mysql+mysqlconnector://root:@localhost:3306/dump-dw_aw')
         conn = engine.connect()
-        print("Connection to MySQL database successful")
+        st.success("Connection to MySQL database successful")
         return conn
     except Exception as e:
-        print(f"Error connecting to MySQL: {e}")
+        st.error(f"Error connecting to MySQL: {e}")
         return None
 
 # Function to fetch data from MySQL
@@ -29,8 +29,11 @@ def fetch_data(conn):
         df = pd.read_sql_query(query, conn)
         return df
     except Exception as e:
-        print(f"Error fetching data from MySQL: {e}")
+        st.error(f"Error fetching data from MySQL: {e}")
         return pd.DataFrame()
+
+# Streamlit app
+st.title("Sales Revenue per Product")
 
 # Connect to MySQL
 conn = get_mysql_connection()
@@ -55,11 +58,11 @@ if conn:
         ax.set_title("Sales Revenue per Product (COMPARISON)")
         ax.set_xticklabels(df["englishproductname"], rotation=45, ha="right")
 
-        # Show plot
-        plt.tight_layout()
-        plt.show()
+        # Show plot in Streamlit
+        st.pyplot(fig)
 
     except Exception as e:
-        print(f"Error: {e}")
+        st.error(f"Error: {e}")
 else:
-    print("Failed to connect to MySQL. Check connection parameters.")
+    st.error("Failed to connect to MySQL. Check connection parameters.")
+
