@@ -1,31 +1,28 @@
 import streamlit as st
-import mysql.connector
+import pymysql
+import pandas as pd
 
-# Function to establish MySQL connection
-def get_mysql_connection():
-    try:
-        conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="", 
-            database="dump-dw_aw"
-        )
-        if conn.is_connected():
-            st.write("Connection to MySQL database successful")
-        return conn
-    except mysql.connector.Error as e:
-        st.error(f"Error connecting to MySQL: {e}")
-        return None
+# Fungsi untuk koneksi ke database
+@st.cache(allow_output_mutation=True)
+def connect_db():
+    conn = pymysql.connect(
+        host='localhost',  # Ganti dengan host Anda
+        port=3306,          # Port default MySQL
+        user='root',        # Ganti dengan username Anda
+        passwd='',          # Ganti dengan password Anda
+        db='dump-dw_aw'  # Ganti dengan nama database Anda
+    )
+    return conn
 
-# Streamlit app
-st.title("MySQL Database Connection Status")
+# Mendapatkan koneksi ke database
+conn = connect_db()
 
-# Connect to MySQL
-conn = get_mysql_connection()
+# Query database
+query = "SELECT * FROM dimaccount"
+df = pd.read_sql(query, con=conn)
 
-# Check if connection is successful
-if conn:
-    st.success("Connection to MySQL database successful")
-    conn.close()  # Close the connection if it's successful
-else:
-    st.error("Failed to connect to MySQL. Check connection parameters.")
+# Menampilkan hasil query
+st.write(df)
+
+# Menutup koneksi database
+conn.close()
