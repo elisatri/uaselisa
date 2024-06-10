@@ -14,15 +14,19 @@ def connect_db():
     )
     return conn
 
-# Mendapatkan koneksi ke database
-conn = connect_db()
+try:
+    # Mendapatkan koneksi ke database
+    conn = connect_db()
 
-# Query database
-query = "SELECT * FROM dimaccount"
-df = pd.read_sql(query, con=conn)
+    # Query database
+    query = "SELECT * FROM nama_tabel"
+    df = pd.read_sql(query, con=conn)
 
-# Menampilkan hasil query
-st.write(df)
+    # Menampilkan hasil query
+    st.write(df)
 
-# Menutup koneksi database
-conn.close()
+    # Menutup koneksi database
+    conn.close()
+
+except pymysql.MySQLError as e:
+    st.error(f"Error: {e}")
