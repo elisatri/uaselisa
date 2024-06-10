@@ -3,23 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sqlalchemy import create_engine
 
-def get_mysql_connection():
-    try:
-        conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="",  
-            database="dump-dw_aw"
-        )
-        print("Connection to MySQL database successful")
-        return conn
-    except mysql.connector.Error as e:
-        print(f"Error connecting to MySQL: {e}")
-        return None
-
-# Testing the function
-conn = get_mysql_connection()
-
 # Function to establish MySQL connection
 def get_mysql_connection():
     try:
@@ -82,4 +65,3 @@ if conn:
         st.error(f"Error: {e}")
 else:
     st.error("Failed to connect to MySQL. Check connection parameters.")
-
