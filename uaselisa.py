@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 def get_mysql_connection():
     try:
         # Adjust the connection string as needed
-        engine = create_engine('mysql+mysqlconnector://root:@localhost:3306/dump-dw_aw')
+        engine = create_engine('mysql+mysqlconnector://root:password@localhost:3306/dump-dw_aw')
         conn = engine.connect()
         st.success("Connection to MySQL database successful")
         return conn
