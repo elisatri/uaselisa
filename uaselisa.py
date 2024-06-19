@@ -221,7 +221,7 @@ def main():
             bins = [0, 50, 100, 200, 500, 1000, 5000, 10000]
             labels = ['0-50', '50-100', '100-200', '200-500', '500-1000', '1000-5000', '5000-10000']
             df5['price_range'] = pd.cut(df5['listprice'], bins=bins, labels=labels, include_lowest=True)
-            bar_data = df5.groupby('pricerange')['orderquantity'].sum().reset_index()
+            bar_data = df5.groupby('price_range')['orderquantity'].sum().reset_index()
 
             # Sankey data preparation
             sankey_data = df5.groupby(['englishproductname', 'price_range'])['orderquantity'].sum().reset_index()
