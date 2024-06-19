@@ -24,7 +24,7 @@ def get_mysql_connection():
         return None
 
 # Fungsi untuk mengambil data dari MySQL
-def fetch_data(conn):
+def fetch_data_sales_per_product(conn):
     query = """
         SELECT pc.productkey, pc.englishproductname, SUM(fs.salesamount) AS total_sales
         FROM dimproduct pc
@@ -40,57 +40,14 @@ def fetch_data(conn):
         print(f"Error fetching data from MySQL: {e}")
         return pd.DataFrame()
 
-# Aplikasi utama Streamlit
-def main():
-    st.title("Sales Revenue per Product Category")
-
-    # Koneksi ke MySQL
-    conn = get_mysql_connection()
-
-    # Memeriksa apakah koneksi berhasil
-    if conn:
-        try:
-            # Mengambil data
-            data = fetch_data(conn)
-
-            # Menutup koneksi
-            conn.close()
-
-            # Menampilkan data
-            st.dataframe(data)
-
-            # Menyiapkan data untuk plotting
-            df = pd.DataFrame(data, columns=['productkey', 'englishproductname', 'total_sales'])
-            
-            # Membuat grafik batang
-        fig, ax = plt.subplots(figsize=(10, 6))
-        df.plot(x="englishproductname", y="total_sales", kind="bar", ax=ax, color="skyblue")
-        ax.set_xlabel("Product")
-        ax.set_ylabel("Sales Revenue")
-        ax.set_title("Sales Revenue per Product (COMPARISON)")
-        ax.set_xticklabels(df["englishproductname"], rotation=45, ha="right")
-   
-            # Menampilkan grafik di Streamlit
-            st.pyplot(fig)
-            plt.show()
-
-        # Function to fetch data from MySQL
-def fetch_data(conn):
+# Fungsi untuk mengambil data tren penjualan per tahun dari MySQL
+def fetch_data_sales_trend(conn):
     query = """
-        SELECT 
-            p.productkey, 
-            p.englishproductname, 
-            SUM(s.salesamount) AS total_sales
-        FROM 
-            dimproduct p
-        INNER JOIN 
-            factinternetsales s ON p.productkey = s.productkey
-        GROUP BY 
-            p.productkey, 
-            p.englishproductname
-        ORDER BY 
-            total_sales DESC
-            LIMIT 25;
+        SELECT t.calendaryear, SUM(s.salesamount) AS total_sales
+        FROM dimtime t
+        INNER JOIN factinternetsales s ON t.timekey = s.orderdatekey
+        GROUP BY t.calendaryear
+        ORDER BY t.calendaryear;
     """
     try:
         cursor = conn.cursor()
@@ -102,40 +59,62 @@ def fetch_data(conn):
         print(f"Error fetching data from MySQL: {e}")
         return []
 
-# Main function to run the application
+# Aplikasi utama Streamlit
 def main():
-    # Connect to MySQL
+    st.title("Sales Analysis")
+
+    # Koneksi ke MySQL
     conn = get_mysql_connection()
 
-    # Check if connection is successful
+    # Memeriksa apakah koneksi berhasil
     if conn:
         try:
-            # Fetch data
-            data = fetch_data(conn)
+            # Mengambil data penjualan per produk
+            data1 = fetch_data_sales_per_product(conn)
+            # Mengambil data tren penjualan per tahun
+            data2 = fetch_data_sales_trend(conn)
 
-            # Close connection
+            # Menutup koneksi
             conn.close()
 
-            # Prepare data for plotting
-            df = pd.DataFrame(data, columns=['productkey', 'englishproductname', 'total_sales'])
-            
-            # Plotting
-            plt.figure(figsize=(10, 6))
-            plt.bar(df['englishproductname'], df['total_sales'], color='skyblue')
-            plt.xlabel('Product')
-            plt.ylabel('Sales Revenue')
-            plt.title('Sales Revenue per Product(RELATIONSHIP)')
-            plt.xticks(rotation=45, ha='right')
-            plt.tight_layout()
-            plt.show()
+            # Menampilkan data penjualan per produk
+            st.subheader("Sales Revenue per Product Category")
+            st.dataframe(data1)
 
+            # Menyiapkan data untuk plotting
+            df1 = pd.DataFrame(data1, columns=['productkey', 'englishproductname', 'total_sales'])
+            
+            # Membuat grafik batang
+            fig1, ax1 = plt.subplots(figsize=(10, 6))
+            df1.plot(x="englishproductname", y="total_sales", kind="bar", ax=ax1, color="skyblue")
+            ax1.set_xlabel("Product")
+            ax1.set_ylabel("Sales Revenue")
+            ax1.set_title("Sales Revenue per Product (COMPARISON)")
+            ax1.set_xticklabels(df1["englishproductname"], rotation=45, ha="right")
+
+            # Menampilkan grafik di Streamlit
+            st.pyplot(fig1)
+
+            # Menyiapkan data untuk plotting tren penjualan per tahun
+            df2 = pd.DataFrame(data2, columns=['calendaryear', 'total_sales'])
+            
+            # Membuat grafik tren penjualan
+            fig2, ax2 = plt.subplots(figsize=(10, 6))
+            ax2.plot(df2['calendaryear'], df2['total_sales'], marker='o', color='b', linestyle='-', linewidth=2)
+            ax2.set_title('Sales Revenue Trend per Year (COMPARISON)')
+            ax2.set_xlabel('Calendar Year')
+            ax2.set_ylabel('Sales Revenue')
+            ax2.grid(True)
+            ax2.set_xticks(df2['calendaryear'])
+            ax2.set_xticklabels(df2['calendaryear'], rotation=45)
+
+            # Menampilkan grafik di Streamlit
+            st.pyplot(fig2)
 
         except Exception as e:
             st.error(f"Error: {e}")
     else:
         st.error("Failed to connect to MySQL. Check connection parameters.")
-
-
 
 # Menjalankan aplikasi
 if __name__ == "__main__":
