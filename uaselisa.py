@@ -1,21 +1,29 @@
+import streamlit as st
+import mysql.connector
 import pandas as pd
 import matplotlib.pyplot as plt
-import streamlit as st
-from sqlalchemy import create_engine
 
-# Function to establish MySQL connection
+# Fungsi untuk koneksi ke database MySQL
 def get_mysql_connection():
     try:
-        # Adjust the connection string as needed
-        engine = create_engine('mysql+mysqlconnector://davis2024irwan:wh451n9m@ch1n3@kubela.id:3306/aw')
-        conn = engine.connect()
-        print("Connection to MySQL database successful")
-        return conn
-    except Exception as e:
-        print(f"Error connecting to MySQL: {e}")
+        conn = mysql.connector.connect(
+            host='kubela.id',
+            user='davis2024irwan',
+            password='wh451n9m@ch1n3',
+            database='aw',
+            port=3306
+        )
+        if conn.is_connected():
+            print("Connection to MySQL database successful")
+            return conn
+        else:
+            print("Failed to connect to MySQL database")
+            return None
+    except mysql.connector.Error as err:
+        print(f"Error connecting to MySQL: {err}")
         return None
 
-# Function to fetch data from MySQL
+# Fungsi untuk mengambil data dari MySQL
 def fetch_data(conn):
     query = """
         SELECT pc.productkey, pc.englishproductname, SUM(fs.salesamount) AS total_sales
@@ -25,30 +33,35 @@ def fetch_data(conn):
         ORDER BY total_sales DESC
     """
     try:
-        df = pd.read_sql_query(query, conn)
+        df = pd.read_sql(query, conn)
         return df
     except Exception as e:
         print(f"Error fetching data from MySQL: {e}")
         return pd.DataFrame()
 
-# Main Streamlit application
+# Aplikasi utama Streamlit
 def main():
-    # Connect to MySQL
+    st.title("Sales Revenue per Product Category")
+
+    # Koneksi ke MySQL
     conn = get_mysql_connection()
 
-    # Check if connection is successful
+    # Memeriksa apakah koneksi berhasil
     if conn:
         try:
-            # Fetch data
+            # Mengambil data
             data = fetch_data(conn)
 
-            # Close connection
+            # Menutup koneksi
             conn.close()
 
-            # Prepare data for plotting
+            # Menampilkan data
+            st.dataframe(data)
+
+            # Menyiapkan data untuk plotting
             df = pd.DataFrame(data, columns=['productkey', 'englishproductname', 'total_sales'])
             
-            # Create bar chart
+            # Membuat grafik batang
             fig, ax = plt.subplots(figsize=(10, 6))
             df.plot(x="englishproductname", y="total_sales", kind="bar", ax=ax, color="skyblue")
             ax.set_xlabel("Product")
@@ -56,8 +69,7 @@ def main():
             ax.set_title("Sales Revenue per Product")
             ax.set_xticklabels(df["englishproductname"], rotation=45, ha="right")
             
-            # Display chart in Streamlit
-            st.title("Sales Revenue per Product Category")
+            # Menampilkan grafik di Streamlit
             st.pyplot(fig)
 
         except Exception as e:
@@ -65,6 +77,6 @@ def main():
     else:
         st.error("Failed to connect to MySQL. Check connection parameters.")
 
-# Run the app
+# Menjalankan aplikasi
 if __name__ == "__main__":
     main()
