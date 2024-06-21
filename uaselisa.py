@@ -176,6 +176,8 @@ def main():
             ax1.set_xticklabels(df1["englishproductname"], rotation=45, ha="right")
             st.pyplot(fig1)
 
+            # Interpretasi: Visualisasi ini menunjukkan pendapatan penjualan untuk 25 produk teratas berdasarkan jumlah penjualan mereka. Produk-produk tertentu mungkin memiliki kontribusi yang signifikan terhadap total pendapatan.
+
             # Bagian untuk menampilkan dan memplot tren penjualan per tahun
             st.subheader("Sales Revenue Trend per Year")
             df2 = pd.DataFrame(data2, columns=['calendaryear', 'total_sales'])
@@ -189,6 +191,8 @@ def main():
             ax2.set_xticklabels(df2['calendaryear'], rotation=45)
             st.pyplot(fig2)
 
+            # Interpretasi: Grafik ini menunjukkan tren penjualan tahunan, menyoroti tahun-tahun dengan penjualan tinggi atau rendah. Ini dapat membantu dalam memahami pola penjualan dari waktu ke waktu.
+
             # Bagian untuk menampilkan dan memplot data promosi
             st.subheader("Sales and Promotions Data")
             df3 = pd.DataFrame(data3, columns=['productkey', 'englishproductname', 'promotionkey', 'englishpromotionname', 'total_sales'])
@@ -200,6 +204,8 @@ def main():
             ax3.set_xticklabels(ax3.get_xticklabels(), rotation=45)
             ax3.set_yticklabels(ax3.get_yticklabels(), rotation=0)
             st.pyplot(fig3)
+
+            # Interpretasi: Matriks korelasi ini menggambarkan hubungan antara produk dan promosi berdasarkan penjualan. Korelasi yang tinggi antara produk dan jenis promosi tertentu dapat menunjukkan efektivitas promosi tersebut terhadap penjualan produk.
 
             # Bagian untuk menampilkan dan memplot data geografis
             st.subheader("Sales Revenue Distribution by Country")
@@ -214,6 +220,8 @@ def main():
                 title="Sales Revenue Distribution by Country"
             )
             st.plotly_chart(fig4)
+
+            # Interpretasi: Peta choropleth ini menunjukkan distribusi pendapatan penjualan berdasarkan negara atau wilayah geografis. Ini membantu dalam mengidentifikasi pasar yang berpotensi besar atau rendah.
 
             # Bagian untuk menampilkan dan memplot data penjualan per produk dengan harga
             st.subheader("Sales Quantity and Price Range Analysis")
@@ -273,6 +281,8 @@ def main():
 
             st.plotly_chart(fig5)
 
+            # Interpretasi: Diagram gabungan ini menggambarkan analisis kuantitas penjualan dan kisaran harga produk. Diagram Sankey menunjukkan hubungan antara nama produk dan kisaran harga terhadap jumlah penjualan, sementara grafik batang menyoroti distribusi kuantitas pesanan berdasarkan kisaran harga produk.
+
         except Exception as e:
             st.error(f"Error: {e}")
     else:
@@ -281,4 +291,3 @@ def main():
 # Menjalankan aplikasi
 if __name__ == "__main__":
     main()
-
