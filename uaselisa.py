@@ -146,7 +146,7 @@ def fetch_data_product_prices(conn):
 
 # Aplikasi utama Streamlit
 def main():
-    st.title("Sales Analysis")
+    st.title("Analisis Penjualan")
 
     # Koneksi ke MySQL
     conn = get_mysql_connection()
@@ -165,50 +165,59 @@ def main():
             conn.close()
 
             # Bagian untuk menampilkan dan memplot data penjualan per produk
-            st.subheader("Sales Revenue per Product Category")
+            st.subheader("Pendapatan Penjualan per Kategori Produk")
             st.dataframe(data1)
             df1 = pd.DataFrame(data1, columns=['productkey', 'englishproductname', 'total_sales'])
             fig1, ax1 = plt.subplots(figsize=(10, 6))
             df1.plot(x="englishproductname", y="total_sales", kind="bar", ax=ax1, color="skyblue")
-            ax1.set_xlabel("Product")
-            ax1.set_ylabel("Sales Revenue")
-            ax1.set_title("Sales Revenue per Product (COMPARISON)")
+            ax1.set_xlabel("Produk")
+            ax1.set_ylabel("Pendapatan Penjualan")
+            ax1.set_title("Pendapatan Penjualan per Produk (PERBANDINGAN)")
             ax1.set_xticklabels(df1["englishproductname"], rotation=45, ha="right")
             st.pyplot(fig1)
 
-            # Interpretasi: Visualisasi ini menunjukkan pendapatan penjualan untuk 25 produk teratas berdasarkan jumlah penjualan mereka. Produk-produk tertentu mungkin memiliki kontribusi yang signifikan terhadap total pendapatan.
+            st.write("""
+            **Interpretasi:**
+            Visualisasi ini memperlihatkan pendapatan penjualan untuk 25 produk teratas berdasarkan jumlah penjualan mereka. Produk-produk tertentu mungkin memiliki kontribusi yang signifikan terhadap total pendapatan.
+            """)
 
             # Bagian untuk menampilkan dan memplot tren penjualan per tahun
-            st.subheader("Sales Revenue Trend per Year")
+            st.subheader("Tren Pendapatan Penjualan per Tahun")
             df2 = pd.DataFrame(data2, columns=['calendaryear', 'total_sales'])
             fig2, ax2 = plt.subplots(figsize=(10, 6))
             ax2.plot(df2['calendaryear'], df2['total_sales'], marker='o', color='b', linestyle='-', linewidth=2)
-            ax2.set_title('Sales Revenue Trend per Year (COMPARISON)')
-            ax2.set_xlabel('Calendar Year')
-            ax2.set_ylabel('Sales Revenue')
+            ax2.set_title('Tren Pendapatan Penjualan per Tahun (PERBANDINGAN)')
+            ax2.set_xlabel('Tahun Kalender')
+            ax2.set_ylabel('Pendapatan Penjualan')
             ax2.grid(True)
             ax2.set_xticks(df2['calendaryear'])
             ax2.set_xticklabels(df2['calendaryear'], rotation=45)
             st.pyplot(fig2)
 
-            # Interpretasi: Grafik ini menunjukkan tren penjualan tahunan, menyoroti tahun-tahun dengan penjualan tinggi atau rendah. Ini dapat membantu dalam memahami pola penjualan dari waktu ke waktu.
+            st.write("""
+            **Interpretasi:**
+            Grafik ini menunjukkan tren pendapatan tahunan, menyoroti tahun-tahun dengan penjualan tinggi atau rendah. Ini dapat membantu dalam memahami pola penjualan dari waktu ke waktu.
+            """)
 
             # Bagian untuk menampilkan dan memplot data promosi
-            st.subheader("Sales and Promotions Data")
+            st.subheader("Data Penjualan dan Promosi")
             df3 = pd.DataFrame(data3, columns=['productkey', 'englishproductname', 'promotionkey', 'englishpromotionname', 'total_sales'])
             matrix_df = df3.pivot_table(index=['productkey', 'englishproductname'], columns=['promotionkey', 'englishpromotionname'], values='total_sales', fill_value=0)
             corr_matrix = matrix_df.corr()
             fig3, ax3 = plt.subplots(figsize=(12, 10))
             sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1, center=0, square=True, linewidths=.5, ax=ax3)
-            ax3.set_title('Correlation Matrix between Product and Promotion (RELATIONSHIP)')
+            ax3.set_title('Matriks Korelasi antara Produk dan Promosi (HUBUNGAN)')
             ax3.set_xticklabels(ax3.get_xticklabels(), rotation=45)
             ax3.set_yticklabels(ax3.get_yticklabels(), rotation=0)
             st.pyplot(fig3)
 
-            # Interpretasi: Matriks korelasi ini menggambarkan hubungan antara produk dan promosi berdasarkan penjualan. Korelasi yang tinggi antara produk dan jenis promosi tertentu dapat menunjukkan efektivitas promosi tersebut terhadap penjualan produk.
+            st.write("""
+            **Interpretasi:**
+            Matriks korelasi ini menggambarkan hubungan antara produk dan promosi berdasarkan penjualan. Korelasi yang tinggi antara produk dan jenis promosi tertentu dapat menunjukkan efektivitas promosi tersebut terhadap penjualan produk.
+            """)
 
             # Bagian untuk menampilkan dan memplot data geografis
-            st.subheader("Sales Revenue Distribution by Country")
+            st.subheader("Distribusi Pendapatan Penjualan berdasarkan Negara")
             df4 = pd.DataFrame(data4, columns=['countryregioncode', 'englishcountryregionname', 'total_sales'])
             fig4 = px.choropleth(
                 df4,
@@ -216,22 +225,25 @@ def main():
                 color="total_sales",
                 hover_name="englishcountryregionname",
                 color_continuous_scale=px.colors.sequential.Plasma,
-                labels={'total_sales':'Sales Revenue'},
-                title="Sales Revenue Distribution by Country"
+                labels={'total_sales':'Pendapatan Penjualan'},
+                title="Distribusi Pendapatan Penjualan berdasarkan Negara"
             )
             st.plotly_chart(fig4)
 
-            # Interpretasi: Peta choropleth ini menunjukkan distribusi pendapatan penjualan berdasarkan negara atau wilayah geografis. Ini membantu dalam mengidentifikasi pasar yang berpotensi besar atau rendah.
+            st.write("""
+            **Interpretasi:**
+            Peta choropleth ini mengilustrasikan distribusi pendapatan penjualan di berbagai negara atau wilayah geografis. Ini membantu dalam mengidentifikasi pasar yang berpotensi besar atau rendah.
+            """)
 
             # Bagian untuk menampilkan dan memplot data penjualan per produk dengan harga
-            st.subheader("Sales Quantity and Price Range Analysis")
+            st.subheader("Analisis Jumlah Penjualan dan Kisaran Harga")
             df5 = pd.DataFrame(data5, columns=['salesordernumber', 'salesorderlinenumber', 'productkey', 'englishproductname', 'listprice', 'orderquantity'])
             bins = [0, 50, 100, 200, 500, 1000, 5000, 10000]
             labels = ['0-50', '50-100', '100-200', '200-500', '500-1000', '1000-5000', '5000-10000']
             df5['price_range'] = pd.cut(df5['listprice'], bins=bins, labels=labels, include_lowest=True)
             bar_data = df5.groupby('price_range')['orderquantity'].sum().reset_index()
 
-            # Sankey data preparation
+            # Persiapan data Sankey
             sankey_data = df5.groupby(['englishproductname', 'price_range'])['orderquantity'].sum().reset_index()
             nodes = list(set(sankey_data['englishproductname'].tolist() + sankey_data['price_range'].tolist()))
             node_indices = {node: idx for idx, node in enumerate(nodes)}
@@ -239,7 +251,7 @@ def main():
             sankey_data['source'] = sankey_data['englishproductname'].map(node_indices)
             sankey_data['target'] = sankey_data['price_range'].map(node_indices)
 
-            # Creating the combined figure
+            # Membuat gambar kombinasi
             fig5 = make_subplots(
                 rows=2, cols=1,
                 row_heights=[0.5, 0.5],
@@ -247,13 +259,13 @@ def main():
                 specs=[[{"type": "bar"}], [{"type": "sankey"}]]
             )
 
-            # Adding bar chart
+            # Menambahkan grafik batang
             fig5.add_trace(
-                go.Bar(x=bar_data['price_range'], y=bar_data['orderquantity'], name='Order Quantity'),
+                go.Bar(x=bar_data['price_range'], y=bar_data['orderquantity'], name='Jumlah Pesanan'),
                 row=1, col=1
             )
 
-            # Adding Sankey diagram
+            # Menambahkan diagram Sankey
             fig5.add_trace(
                 go.Sankey(
                     node=dict(
@@ -272,21 +284,24 @@ def main():
                 row=2, col=1
             )
 
-            # Updating layout
+            # Memperbarui tata letak
             fig5.update_layout(
-                title_text="Combined Bar Chart and Sankey Diagram",
+                title_text="Diagram Gabungan Grafik Batang dan Sankey",
                 font_size=10,
                 height=800
             )
 
             st.plotly_chart(fig5)
 
-            # Interpretasi: Diagram gabungan ini menggambarkan analisis kuantitas penjualan dan kisaran harga produk. Diagram Sankey menunjukkan hubungan antara nama produk dan kisaran harga terhadap jumlah penjualan, sementara grafik batang menyoroti distribusi kuantitas pesanan berdasarkan kisaran harga produk.
+            st.write("""
+            **Interpretasi:**
+            Diagram gabungan ini menggambarkan analisis kuantitas penjualan dan kisaran harga produk. Diagram Sankey menunjukkan hubungan antara nama produk dan kisaran harga terhadap jumlah penjualan, sementara grafik batang menyoroti distribusi kuantitas pesanan berdasarkan kisaran harga produk.
+            """)
 
         except Exception as e:
             st.error(f"Error: {e}")
     else:
-        st.error("Failed to connect to MySQL. Check connection parameters.")
+        st.error("Gagal terhubung ke MySQL. Periksa parameter koneksi.")
 
 # Menjalankan aplikasi
 if __name__ == "__main__":
