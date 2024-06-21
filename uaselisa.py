@@ -135,7 +135,7 @@ def fetch_data_product_prices(conn):
             factinternetsales fs
         INNER JOIN 
             dimproduct dp ON fs.productkey = dp.productkey
-            LIMIT 12000
+            LIMIT 10000
     """
     try:
         df = pd.read_sql(query, conn)
